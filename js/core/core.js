@@ -80,7 +80,31 @@ class CoreGame {
 
     gather() {
         if (!this.gameState.gameActive) return false;
-        
+         // Поиск камней рядом
+const stones = this.gameState.getStonesInRange(
+    this.gameState.player.x,
+    this.gameState.player.y,
+    this.gameBalance.GATHER_RADIUS
+);
+
+if (stones.length > 0) {
+    const gain = Math.min(stones[0].stone, this.gameBalance.GATHER_STONE_AMOUNT);
+    stones[0].stone -= gain;
+    this.gameState.addStone(gain);
+   
+    // Визуальный эффект
+    if (this.effectsManager) {
+        this.effectsManager.addPickupEffect(stones[0].x, stones[0].y);
+    }
+   
+    // Удаляем камень если ресурс закончился
+    if (stones[0].stone <= 0) {
+        this.gameState.removeStone(stones[0]);
+    }
+   
+    this.soundManager.play('gather');
+    return true;
+}
         // Поиск деревьев рядом
         const trees = this.gameState.getTreesInRange(
             this.gameState.player.x, 
